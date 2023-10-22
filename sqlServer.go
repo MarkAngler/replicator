@@ -14,10 +14,19 @@ func connectToDatabase(serverName, port, username, password string) (*gorm.DB, e
 	return db, err
 }
 
-// ReadFromTable reads all rows from a table
-func readFromTable(db *gorm.DB, tableName string) error {
-	result := db.Table(tableName)
-	return result.Error
+// ReadFromTable reads all rows from a table and populates the rows slice with them.
+func readFromTable(db *gorm.DB, tableName string) ([]map[string]interface{}, error) {
+	var results []map[string]interface{}
+	result := db.Find(&tableName).Scan(&results)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return results, nil
+}
+
+func getAllTables(db *gorm.DB) ([]map[string]interface{}, error) {
+	result, err := readFromTable(db, "INFORMATION_SCHEMA.TABLES")
+	return result, err
 }
 
 // InsertToTable inserts a new row into a table. Generic function, less type safe.
