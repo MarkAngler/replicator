@@ -14,6 +14,12 @@ func connectToDatabase(serverName, port, username, password string) (*gorm.DB, e
 	return db, err
 }
 
+// ReadFromTable reads all rows from a table
+func readFromTable(db *gorm.DB, tableName string) error {
+	result := db.Table(tableName)
+	return result.Error
+}
+
 // InsertToTable inserts a new row into a table. Generic function, less type safe.
 func insertToTable(db *gorm.DB, tableName string, values interface{}) error {
 	result := db.Table(tableName).Create(values)
