@@ -7,25 +7,30 @@ import (
 )
 
 type sourceServer struct {
-	server string `json:"server"`
-	port   string `json:"port"`
+	Server string `json:"server"`
+	Port   string `json:"port"`
 }
 
-var sourceServerList = []sourceServer{}
+var servers = []sourceServer{}
 
-func postSourceServer(c *gin.Context) {
+func postSourceServers(c *gin.Context) {
 	var newServer sourceServer
 	if err := c.BindJSON(&newServer); err != nil {
 		return
 	}
 
-	sourceServerList = append(sourceServerList, newServer)
+	servers = append(servers, newServer)
 	c.IndentedJSON(http.StatusCreated, newServer)
+}
+
+func getSourceServers(c *gin.Context) {
+	c.IndentedJSON(http.StatusOK, servers)
 }
 
 func main() {
 	r := gin.Default()
 
-	r.POST("/newSourceServer", postSourceServer)
+	r.POST("/sourceServers", postSourceServers)
+	r.GET("/sourceServers", getSourceServers)
 	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
