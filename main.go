@@ -6,6 +6,11 @@ import (
 
 func main() {
 	r := gin.Default()
+	r.LoadHTMLGlob("templates/*")
+
+	r.GET("/form", func(c *gin.Context) {
+		c.HTML(200, "form.html", nil)
+	})
 
 	r.POST("/sourceServers", postSourceServers)
 	r.GET("/sourceServers", getSourceServers)

@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type sourceServer struct {
@@ -15,20 +16,28 @@ type sourceServer struct {
 
 var servers = []sourceServer{}
 
-// encrypt a string with a key
-func encrypt(key []byte, text string) string {
-	return text
-}
-
-func decrypt(key []byte, text string) string {
-	return text
+func HashPassword(password string) (string, error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+	return string(hashedPassword), nil
 }
 
 func postSourceServers(c *gin.Context) {
 	var newServer sourceServer
-	if err := c.BindJSON(&newServer); err != nil {
+	if err := c.ShouldBind(&newServer); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
+
+	// Hash the password using the separate HashPassword function
+	hashedPassword, err := HashPassword(newServer.Password)
+	if err != nil {
+		c.JSON(500, gin.H{"error": "Could not hash password"})
+		return
+	}
+	newServer.Password = hashedPassword
 
 	servers = append(servers, newServer)
 	c.IndentedJSON(http.StatusCreated, newServer)
