@@ -26,11 +26,17 @@ func readFromTable(db *gorm.DB, tableName string) ([]map[string]interface{}, err
 
 func getAllTables(db *gorm.DB) ([]map[string]interface{}, error) {
 	result, err := readFromTable(db, "INFORMATION_SCHEMA.TABLES")
+	if err != nil {
+		return nil, err
+	}
 	return result, err
 }
 
 // InsertToTable inserts a new row into a table. Generic function, less type safe.
-func insertToTable(db *gorm.DB, tableName string, values interface{}) error {
+func insertToTable(db *gorm.DB, tableName string, values interface{}) (int64, error) {
 	result := db.Table(tableName).Create(values)
-	return result.Error
+	if result.Error != nil {
+		return 0, result.Error
+	}
+	return result.RowsAffected, nil
 }
