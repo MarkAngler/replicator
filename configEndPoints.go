@@ -1,10 +1,13 @@
 package main
 
 import (
+	"crypto/aes"
+	"crypto/cipher"
+	"encoding/base64"
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type sourceServer struct {
@@ -16,12 +19,41 @@ type sourceServer struct {
 
 var servers = []sourceServer{}
 
-func HashPassword(password string) (string, error) {
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+func Encrypt(key, plaintext string) (string, error) {
+	block, err := aes.NewCipher([]byte(key))
 	if err != nil {
 		return "", err
 	}
-	return string(hashedPassword), nil
+
+	plaintextBytes := []byte(plaintext)
+	ciphertextBytes := make([]byte, len(plaintextBytes))
+	stream := cipher.NewCTR(block, []byte(key[:block.BlockSize()]))
+	stream.XORKeyStream(ciphertextBytes, plaintextBytes)
+
+	return base64.StdEncoding.EncodeToString(ciphertextBytes), nil
+}
+
+// Decrypt decrypts the ciphertext with the given key using AES.
+func Decrypt(key, ciphertext string) (string, error) {
+	block, err := aes.NewCipher([]byte(key))
+	if err != nil {
+		return "", err
+	}
+
+	ciphertextBytes, err := base64.StdEncoding.DecodeString(ciphertext)
+	if err != nil {
+		return "", err
+	}
+
+	if len(ciphertextBytes) < block.BlockSize() {
+		return "", errors.New("ciphertext too short")
+	}
+
+	plaintextBytes := make([]byte, len(ciphertextBytes))
+	stream := cipher.NewCTR(block, []byte(key[:block.BlockSize()]))
+	stream.XORKeyStream(plaintextBytes, ciphertextBytes)
+
+	return string(plaintextBytes), nil
 }
 
 func postSourceServers(c *gin.Context) {
@@ -32,7 +64,7 @@ func postSourceServers(c *gin.Context) {
 	}
 
 	// Hash the password using the separate HashPassword function
-	hashedPassword, err := HashPassword(newServer.Password)
+	hashedPassword, err := Encrypt("1", newServer.Password)
 	if err != nil {
 		c.JSON(500, gin.H{"error": "Could not hash password"})
 		return
