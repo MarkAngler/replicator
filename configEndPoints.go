@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"gopkg.in/yaml.v3"
 )
 
 type sourceServer struct {
@@ -18,6 +19,15 @@ type sourceServer struct {
 }
 
 var servers = []sourceServer{}
+
+func createYaml(y map[string]interface{}, fileName string) ([]byte, error) {
+	data, err := yaml.Marshal(y)
+	if err != nil {
+		return nil, err
+
+	}
+	return data, nil
+}
 
 func Encrypt(key, plaintext string) (string, error) {
 	block, err := aes.NewCipher([]byte(key))
