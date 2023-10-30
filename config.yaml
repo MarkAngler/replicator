@@ -1,4 +1,8 @@
-server: test
-port: test
-username: ""
-password: ""
+Servers:
+  - Name: "Server1"
+    Host: "Server1"
+    Port: 1433
+    Type: "MSSQL"
+    Database: "Database1"
+    Username: "Username1"
+    Password: "Password1"
