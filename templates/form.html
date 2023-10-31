@@ -15,7 +15,8 @@
                 .then(response => response.json())
                 .then(data => {
                     var outputDiv = document.getElementById("output");
-                    outputDiv.innerHTML += `<p>Server: ${data.server}, Port: ${data.port}, Username: ${data.username}, Password: ${data.password}</p>`;
+                    // Update the output format according to your ServerDetails structure
+                    outputDiv.innerHTML += `<p>Host: ${data.host}, Port: ${data.port}, Type: ${data.type}, Database: ${data.database}, Username: ${data.username}, Password: ${data.password}</p>`;
                 })
                 .catch(error => {
                     console.error('Error:', error);
@@ -29,8 +30,9 @@
                 .then(data => {
                     var outputDiv = document.getElementById("output");
                     outputDiv.innerHTML = "";  // Clear previous entries
+                    // Update the output format according to your ServerDetails structure
                     data.forEach(server => {
-                        outputDiv.innerHTML += `<p>Server: ${server.server}, Port: ${server.port}, Username: ${server.username}, Password: ${server.password}</p>`;
+                        outputDiv.innerHTML += `<p>Host: ${server.host}, Port: ${server.port}, Type: ${server.type}, Database: ${server.database}, Username: ${server.username}, Password: ${server.password}</p>`;
                     });
                 })
                 .catch(error => {
@@ -42,15 +44,17 @@
 </head>
 <body>
     <form id="serverForm" action="/sourceServers" method="post">
-        Server: <input type="text" name="Server"><br>
-        Port: <input type="text" name="Port"><br>
+        Host: <input type="text" name="host"><br>
+        Port: <input type="text" name="port"><br>
+        Type: <input type="text" name="type"><br>
+        Database: <input type="text" name="database"><br>
         Username: <input type="text" name="username"><br>
         Password: <input type="password" name="password"><br>
         <input type="submit" value="Submit">
     </form>
     <button id="getServers">Get Servers</button>
     <div id="output">
-        <!-- Submitted data and fetched data will appear here -->
+        <!-- Server data will appear here -->
     </div>
 </body>
 </html>

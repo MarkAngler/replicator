@@ -1,8 +1,8 @@
 Servers:
-  - Name: "Server1"
-    Host: "Server1"
-    Port: 1433
-    Type: "MSSQL"
-    Database: "Database1"
-    Username: "Username1"
-    Password: "Password1"
+    test:
+        host: test
+        port: test
+        type: test
+        database: test
+        username: test
+        password: FPfN3Q==

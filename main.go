@@ -7,6 +7,9 @@ import (
 var EncryptionKey string
 
 func main() {
+
+	Config.Servers = make(map[string]ServerDetails)
+
 	initializeYaml()
 	r := gin.Default()
 	r.LoadHTMLGlob("templates/*")
