@@ -90,6 +90,6 @@ func postSourceServers(c *gin.Context) {
 	c.IndentedJSON(http.StatusCreated, newServer)
 }
 
-// func getSourceServers(c *gin.Context) {
-// 	c.IndentedJSON(http.StatusOK, servers)
-// }
+func getSourceServers(c *gin.Context) {
+	c.IndentedJSON(http.StatusOK, Config.Servers)
+}
