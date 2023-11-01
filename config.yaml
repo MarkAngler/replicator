@@ -1,4 +1,11 @@
 Servers:
+    te2st:
+        host: te2st
+        port: test
+        type: test
+        database: test
+        username: test
+        password: FPfN3Q==
     test:
         host: test
         port: test
