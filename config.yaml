@@ -1,12 +1,12 @@
 Servers:
-    te2st:
-        host: te2st
+    test:
+        host: test
         port: test
         type: test
         database: test
         username: test
         password: FPfN3Q==
-    test:
+    test2:
         host: test
         port: test
         type: test
