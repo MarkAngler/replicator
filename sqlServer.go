@@ -1,42 +1,63 @@
 package main
 
 import (
+	"context"
+	"database/sql"
 	"fmt"
 
-	"gorm.io/driver/sqlserver"
-	"gorm.io/gorm"
+	_ "github.com/denisenkom/go-mssqldb"
 )
 
-// ConnectToDatabase establishes a new database connection
-func connectToDatabase(serverName, port, username, password string) (*gorm.DB, error) {
-	dsn := fmt.Sprintf("sqlserver://%s:%s@%s:%s?database=your_db", username, password, serverName, port)
-	db, err := gorm.Open(sqlserver.Open(dsn), &gorm.Config{})
-	return db, err
-}
-
-// ReadFromTable reads all rows from a table and populates the rows slice with them.
-func readFromTable(db *gorm.DB, tableName string) ([]map[string]interface{}, error) {
-	var results []map[string]interface{}
-	result := db.Find(&tableName).Scan(&results)
-	if result.Error != nil {
-		return nil, result.Error
-	}
-	return results, nil
-}
-
-func getAllTables(db *gorm.DB) ([]map[string]interface{}, error) {
-	result, err := readFromTable(db, "INFORMATION_SCHEMA.TABLES")
+func connectToSQLServer(serverName string, port string, user string, password string, database string) (*sql.DB, error) {
+	connString := fmt.Sprintf("server=%s;user id=%s;password=%s;port=%s;database=%s", serverName, user, password, port, database)
+	db, err := sql.Open("sqlserver", connString)
 	if err != nil {
 		return nil, err
 	}
-	return result, err
+
+	// Ping the SQL Server to ensure connectivity
+	err = db.PingContext(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Println("Connected to SQL Server")
+	return db, nil
 }
 
-// InsertToTable inserts a new row into a table. Generic function, less type safe.
-func insertToTable(db *gorm.DB, tableName string, values interface{}) (int64, error) {
-	result := db.Table(tableName).Create(values)
-	if result.Error != nil {
-		return 0, result.Error
+func queryData(db *sql.DB, table string) ([]interface{}, error) {
+	query := fmt.Sprintf("SELECT * FROM %s", table)
+	rows, err := db.QueryContext(context.Background(), query)
+	if err != nil {
+		return nil, err
 	}
-	return result.RowsAffected, nil
+	defer rows.Close()
+
+	columnNames, err := rows.Columns()
+	if err != nil {
+		// Handle error
+	}
+
+	columns := make([]interface{}, len(columnNames))
+	columnPointers := make([]interface{}, len(columnNames))
+
+	var data []interface{}
+
+	for i := range columns {
+		columnPointers[i] = &columns[i]
+	}
+
+	for rows.Next() {
+		// Create a slice of interfaces with the length of the number of columns
+
+		// Scan the row into the column pointers
+
+		if err := rows.Scan(columnPointers...); err != nil {
+			return nil, err
+		}
+
+		data = append(data, columnPointers)
+	}
+
+	return data, nil
 }
